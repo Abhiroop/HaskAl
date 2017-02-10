@@ -1,3 +1,4 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 module FingerTree where
@@ -14,8 +15,8 @@ toList :: Tree v a -> [a]
 toList (Leaf _ a)     = [a]
 toList (Branch _ x y) = toList x ++ toList y
 
-leaf :: a -> Tree (Size a) a
-leaf a = Leaf (Size 1) a
+-- leaf :: a -> Tree (Size a) a
+-- leaf a = Leaf (Size 1) a
 
 -- branch :: Tree (Size a) a -> Tree (Size a) a -> Tree (Size a) a
 -- branch x y = Branch (Size (tag x + tag y)) x y
@@ -73,4 +74,21 @@ instance Tag (Tree (Priority a) a) where
 
 branch :: (Tag v, Monoid v) => Tree v a -> Tree v a -> Tree v a
 branch x y = Branch (tag x <> tag y) x y
+
+
+class Monoid v => Measured a v where
+    measure :: a -> v
+
+leaf :: Measured a v => a -> Tree v a
+leaf a = Leaf (measure a) a
+
+instance Measured Int (Size a) where
+    measure _ = Size 1            -- one element = size 1
+
+instance Measured Int (Priority a) where
+    measure a = Priority a   -- urgency of the element
+
+instance (Tag v, Measured a v) => Measured (Tree v a) v where
+    measure = tag
+
 
