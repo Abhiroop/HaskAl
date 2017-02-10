@@ -76,22 +76,23 @@ branch :: (Tag v, Monoid v) => Tree v a -> Tree v a -> Tree v a
 branch x y = Branch (tag x <> tag y) x y
 
 
-class Monoid v => Measured a v where
+class Monoid v => Measured v a where
     measure :: a -> v
 
-leaf :: Measured a v => a -> Tree v a
+leaf :: Measured v a => a -> Tree v a
 leaf a = Leaf (measure a) a
 
-instance Measured Int (Size a) where
+instance Measured (Size a) Int where
     measure _ = Size 1            -- one element = size 1
 
-instance Measured Int (Priority a) where
+instance Measured (Priority a) Int where
     measure a = Priority a   -- urgency of the element
 
-instance (Tag v, Measured a v) => Measured (Tree v a) v where
+instance (Tag v, Measured v a) => Measured v (Tree v a) where
     measure = tag
 
-search :: (Tag v, Measured a v) => (v -> Bool) -> Tree v a -> Maybe a
+----------------------------O(logn) Search---------------------------
+search :: (Tag v, Measured v a) => (v -> Bool) -> Tree v a -> Maybe a
 search p t
     | p (measure t) = Just (go mempty p t)
     | otherwise     = Nothing
