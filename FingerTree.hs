@@ -91,4 +91,13 @@ instance Measured Int (Priority a) where
 instance (Tag v, Measured a v) => Measured (Tree v a) v where
     measure = tag
 
+search :: (Tag v, Measured a v) => (v -> Bool) -> Tree v a -> Maybe a
+search p t
+    | p (measure t) = Just (go mempty p t)
+    | otherwise     = Nothing
+    where
+    go i p (Leaf _ a) = a
+    go i p (Branch _ l r)
+        | p (i <> measure l) = go i p l
+        | otherwise          = go (i <> measure l) p r
 
