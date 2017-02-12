@@ -1,4 +1,3 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 
@@ -74,30 +73,30 @@ branch :: (Tag v, Monoid v) => Tree v a -> Tree v a -> Tree v a
 branch x y = Branch (tag x <> tag y) x y
 
 
-class Monoid v => Measured v a where
-    measure :: a -> v
+-- class Monoid v => Measured v a where
+--     measure :: a -> v
 
-leaf :: Measured v a => a -> a -> Tree v a
-leaf a priority = Leaf (measure priority) a
+-- leaf :: a -> b -> Tree v a
+-- leaf (Leaf v a) = Leaf v a v= 
 
-instance Measured Size Int where
-    measure _ = Size 1            -- one element = size 1
+-- instance Measured Size Int where
+--     measure _ = Size 1            -- one element = size 1
 
-instance Measured Priority Int where
-    measure a = Priority a   -- urgency of the element
+-- instance Measured Priority Int where
+--     measure a = Priority a   -- urgency of the element
 
-instance (Tag v, Measured v a) => Measured v (Tree v a) where
-    measure = tag
+-- instance (Tag v, Measured v a) => Measured v (Tree v a) where
+--     measure = tag
 
 ----------------------------O(logn) Search---------------------------
-search :: (Tag v, Measured v a) => (v -> Bool) -> Tree v a -> Maybe a
+search :: (Monoid v, Tag v) => (v -> Bool) -> Tree v a -> Maybe a
 search p t
-    | p (measure t) = Just (go mempty p t)
+    | p (tag t) = Just (go mempty p t)
     | otherwise     = Nothing
     where
     go i p (Leaf _ a) = a
     go i p (Branch _ l r)
-        | p (i <> measure l) = go i p l
-        | otherwise          = go (i <> measure l) p r
+        | p (i <> tag l) = go i p l
+        | otherwise          = go (i <> tag l) p r
 
 
